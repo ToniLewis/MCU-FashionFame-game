@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mix & Match Runway — Hardware/Software Interface Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F2FF;
+    --panel:#FFFFFF;
+    --ink:#262347;
+    --ink-soft:#615D8B;
+    --green:#00D9A6;
+    --green-dark:#00B589;
+    --sky:#3FA9E0;
+    --sky-bg:#E8F7FF;
+    --coral:#FF6B6B;
+    --coral-bg:#FFECEC;
+    --yellow:#F5B400;
+    --yellow-bg:#FFF6DD;
+    --violet:#8C7BFF;
+    --rose:#FF6FA5;
+    --rose-bg:#FFEAF3;
+    --border:#E3E0F5;
+    --shadow: 0 6px 20px rgba(70, 60, 140, 0.08);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Nunito', sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,.display{ font-family:'Baloo 2', sans-serif; }
+  .app{ max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+  .hero{ text-align:center; margin-bottom: 18px; }
+  .hero h1{ font-size: clamp(1.4rem, 4vw, 2.2rem); margin: 0 0 4px; color: var(--ink); }
+  .hero p{ margin:0; color:var(--ink-soft); font-weight:700; font-size:0.95rem; }
+  .tracker-wrap{ background: var(--panel); border-radius: 20px; padding: 18px 14px 10px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border); }
+  .tracker-label{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; padding: 0 4px; }
+  .tracker-label b{ font-family:'Baloo 2'; font-size:1rem; }
+  .tracker-label span{ font-size:0.85rem; color:var(--ink-soft); font-weight:700;}
+  .circuit-svg{ width:100%; height:auto; display:block; }
+  .layout{ display:grid; grid-template-columns: 230px 1fr; gap:18px; align-items:start; }
+  @media (max-width: 760px){ .layout{ grid-template-columns: 1fr; } }
+  .steplist{ background:var(--panel); border-radius:18px; padding:10px; box-shadow: var(--shadow); border:1px solid var(--border); position: sticky; top: 12px; max-height: 78vh; overflow-y:auto; }
+  @media (max-width: 760px){ .steplist{ position:static; max-height:none; display:flex; flex-wrap:wrap; gap:6px; } }
+  .step-btn{ display:flex; align-items:center; gap:8px; width:100%; text-align:left; padding:9px 10px; margin-bottom:4px; border:none; border-radius:12px; background:transparent; cursor:pointer; font-family:'Nunito'; font-weight:700; font-size:0.85rem; color:var(--ink-soft); transition: background .15s ease, color .15s ease; }
+  @media (max-width:760px){ .step-btn{ width:auto; margin-bottom:0; } }
+  .step-btn:hover{ background: var(--rose-bg); }
+  .step-btn.active{ background: var(--ink); color:#fff; }
+  .step-btn .dot{ flex:0 0 20px; height:20px; width:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; background: var(--border); color:var(--ink-soft); }
+  .step-btn.done .dot{ background: var(--green); color:#fff; }
+  .step-btn.active .dot{ background: var(--rose); color:#fff; }
+  .panel{ background: var(--panel); border-radius:20px; padding: 22px 24px 26px; box-shadow: var(--shadow); border:1px solid var(--border); min-height: 420px; }
+  .badge{ display:inline-block; background: var(--rose); color:#fff; font-family:'Baloo 2'; font-size:0.75rem; padding: 4px 12px; border-radius:999px; letter-spacing:0.03em; margin-bottom: 10px; }
+  .panel h2{ margin: 2px 0 12px; font-size:1.5rem; display:flex; align-items:center; gap:8px;}
+  .callout{ border-radius:14px; padding:14px 16px; margin: 14px 0; font-size:0.92rem; line-height:1.5;}
+  .callout b.tag{ display:block; font-family:'Baloo 2'; font-size:0.85rem; margin-bottom:4px; }
+  .why{ background:var(--sky-bg); color:#0B4C6E; }
+  .why b.tag{ color:var(--sky); }
+  .mistake{ background:var(--coral-bg); color:#7A2020; }
+  .mistake b.tag{ color:var(--coral); }
+  .checklist-box{ background:var(--yellow-bg); border-radius:14px; padding:14px 16px; margin:14px 0;}
+  .checklist-box b.tag{ font-family:'Baloo 2'; font-size:0.85rem; color:var(--yellow); display:block; margin-bottom:6px;}
+  .steps-list{ margin:10px 0; padding-left:0; list-style:none; }
+  .steps-list li{ display:flex; gap:10px; padding:7px 0; font-size:0.94rem; line-height:1.45; border-bottom: 1px dashed var(--border); }
+  .steps-list li:last-child{ border-bottom:none; }
+  .steps-list .num{ flex:0 0 22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:0.72rem; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .diagram-wrap{ text-align:center; margin: 16px 0; }
+  .diagram-wrap svg{ max-width: 100%; height:auto; }
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; flex-wrap:wrap; }
+  .navbtn{ font-family:'Baloo 2'; font-weight:700; border:none; border-radius:999px; padding:10px 18px; cursor:pointer; font-size:0.9rem; transition: transform .1s ease; }
+  .navbtn:active{ transform: scale(0.96); }
+  .navbtn.prev{ background: var(--border); color: var(--ink-soft); }
+  .navbtn.next{ background: var(--ink); color:#fff; }
+  .navbtn:disabled{ opacity:0.35; cursor:default; }
+  .done-toggle{ display:flex; align-items:center; gap:8px; font-family:'Baloo 2'; font-size:0.85rem; color:var(--ink-soft); }
+  .done-toggle input{ width:18px; height:18px; accent-color: var(--green-dark); }
+  .check-row{ display:flex; align-items:flex-start; gap:8px; padding:5px 0; font-size:0.9rem; }
+  .check-row input{ margin-top:3px; width:16px; height:16px; accent-color: var(--green-dark); flex:0 0 16px; }
+  .footer-note{ text-align:center; color:var(--ink-soft); font-size:0.8rem; margin-top: 22px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <h1>👗 Build "Mix & Match Runway"</h1>
+    <p>A Hardware ↔ Software Interface prototype, one tiny step at a time 🌸</p>
+  </div>
+
+  <div class="tracker-wrap">
+    <div class="tracker-label">
+      <b>💗 Runway Progress</b>
+      <span id="progressText">0 / 11 steps lit</span>
+    </div>
+    <svg id="circuitTracker" class="circuit-svg" viewBox="0 0 940 70" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="layout">
+    <nav class="steplist" id="steplist"></nav>
+    <main class="panel" id="panel"></main>
+  </div>
+
+  <p class="footer-note">Nothing here saves between visits — it resets if you reload. That's okay! Go at your own pace 💛</p>
+</div>
+
+<script>
+// ---------- SVG HELPERS ----------
+function wire(x1,y1,x2,y2,arrow){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-soft)" stroke-width="3" stroke-linecap="round" ${arrow?'marker-end="url(#arrow)"':''}/>`;
+}
+function pin(x,y,label,color){
+  return `<circle cx="${x}" cy="${y}" r="15" fill="#fff" stroke="${color||'var(--sky)'}" stroke-width="3"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="12" font-weight="800" font-family="Nunito" fill="var(--ink)">${label}</text>`;
+}
+function lamp(x,y,label,side,color){
+  const dx = side==='left' ? -32 : 32;
+  const anchor = side==='left' ? 'end' : 'start';
+  return `<circle cx="${x}" cy="${y}" r="15" fill="${color||'var(--rose-bg)'}" stroke="${color?'var(--rose)':'var(--rose)'}" stroke-width="3"/><text x="${x+dx}" y="${y+5}" text-anchor="${anchor}" font-size="13" font-weight="800" font-family="Baloo 2" fill="var(--ink)">${label}</text>`;
+}
+function box(x,y,w,h,text,fillC,strokeC,fontSize){
+  fontSize = fontSize||14;
+  const lines = String(text).split('\n');
+  const startY = y+h/2 - ((lines.length-1)*fontSize*0.6);
+  const texts = lines.map((line,i)=>`<text x="${x+w/2}" y="${startY+i*fontSize*1.25}" text-anchor="middle" font-size="${fontSize}" font-weight="800" font-family="Baloo 2" fill="var(--ink)">${line}</text>`).join('');
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="${fillC}" stroke="${strokeC}" stroke-width="3"/>${texts}`;
+}
+function chip(x,y,w,h,text,fillC,strokeC,fontSize){
+  let pins='';
+  const pinCount=3, spacing=h/(pinCount+1);
+  for(let i=1;i<=pinCount;i++){
+    const py=y+spacing*i;
+    pins += `<rect x="${x-10}" y="${py-3}" width="10" height="6" fill="${strokeC}"/>`;
+    pins += `<rect x="${x+w}" y="${py-3}" width="10" height="6" fill="${strokeC}"/>`;
+  }
+  return pins + box(x,y,w,h,text,fillC,strokeC,fontSize);
+}
+function buttonIcon(x,y,label){
+  return `<rect x="${x-16}" y="${y-16}" width="32" height="32" rx="8" fill="#fff" stroke="var(--violet)" stroke-width="3"/><circle cx="${x}" cy="${y}" r="8" fill="var(--violet)" opacity="0.35"/><text x="${x}" y="${y+34}" text-anchor="middle" font-size="12" font-weight="800" font-family="Baloo 2" fill="var(--ink-soft)">${label}</text>`;
+}
+function ledIcon(x,y,label,colorVar){
+  return `<circle cx="${x}" cy="${y}" r="17" fill="${colorVar}" opacity="0.25" /><circle cx="${x}" cy="${y}" r="10" fill="${colorVar}"/><text x="${x}" y="${y+34}" text-anchor="middle" font-size="12" font-weight="800" font-family="Baloo 2" fill="var(--ink-soft)">${label}</text>`;
+}
+function caption(x,y,text,size,color){
+  return `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size||12}" font-weight="700" fill="${color||'var(--ink-soft)'}">${text}</text>`;
+}
+function svgWrap(vbW,vbH,content){
+  return `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg">
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 Z" fill="var(--green-dark)"/></marker></defs>
+    ${content}
+  </svg>`;
+}
+
+// ---------- DIAGRAMS ----------
+function diagSetup(){
+  let s='';
+  s += box(20,30,150,120,'Wokwi\n(browser)','var(--sky-bg)','var(--sky)',15);
+  s += box(200,30,150,120,'Python +\npyserial','var(--rose-bg)','var(--rose)',15);
+  s += box(380,30,150,120,'Code editor\n(VS Code etc.)','#FCFCFF','var(--ink-soft)',15);
+  return svgWrap(550,180,s);
+}
+function diagButtons(){
+  let s='';
+  const labels=['Top','Bottom','Shoes','Accessory','Confirm'];
+  const xs=[40,140,240,340,440];
+  labels.forEach((l,i)=>{ s+=buttonIcon(xs[i],50,l); s+=wire(xs[i],70,xs[i],120); });
+  s += chip(230,120,120,90,'MCU\n(simulated)','var(--sky-bg)','var(--sky)',15);
+  return svgWrap(500,240,s);
+}
+function diagLED(){
+  let s='';
+  s += chip(190,50,120,90,'MCU','var(--sky-bg)','var(--sky)',16);
+  s += wire(310,75,400,60,true); s += ledIcon(430,60,'RGB LED','var(--rose)');
+  s += wire(310,115,400,140,true); s += caption(430,140,'🔊',26); s += caption(430,165,'Buzzer',12);
+  return svgWrap(500,210,s);
+}
+function diagFirmwareLoop(){
+  let s='';
+  s += box(20,20,140,50,'Start','var(--sky-bg)','var(--sky)',15);
+  s += wire(160,45,220,45,true);
+  s += box(220,20,150,50,'Read buttons','var(--rose-bg)','var(--rose)',15);
+  s += wire(295,70,295,120,true);
+  s += box(220,120,150,50,'Debounce &\nbuild code','var(--rose-bg)','var(--rose)',15);
+  s += wire(220,145,160,145,true);
+  s += box(20,120,140,50,'Print over\nSerial','var(--yellow-bg)','var(--yellow)',15);
+  s += wire(90,120,90,70,true);
+  s += caption(90,15,'loop back ↑',12);
+  return svgWrap(400,200,s);
+}
+function diagRules(){
+  let s='';
+  s += box(20,15,380,150,'','var(--yellow-bg)','var(--yellow)');
+  s += caption(210,10,'Style rules (example)',15,'var(--ink)');
+  const rows=['Top:Red + Bottom:Black = +10','Top:Red + Bottom:Red = -5 (clash)','Shoes:White + any = +5','Accessory:None = +0 (neutral)'];
+  rows.forEach((r,i)=>{ s += `<text x="40" y="${55+i*30}" font-size="14" font-weight="700" fill="var(--ink)">${r}</text>`; });
+  return svgWrap(420,180,s);
+}
+function diagBackendStructure(){
+  let s='';
+  s += box(20,50,140,70,'Serial Port','var(--sky-bg)','var(--sky)',15);
+  s += wire(160,85,230,85,true);
+  s += box(230,30,170,110,'Python script\n(read loop)','var(--rose-bg)','var(--rose)',15);
+  s += wire(400,85,470,85,true);
+  s += box(470,50,140,70,'Parsed\ncommand','#FCFCFF','var(--ink-soft)',15);
+  return svgWrap(630,170,s);
+}
+function diagConnectLogic(){
+  let s='';
+  s += box(20,50,150,70,'Parsed\ncommand','#FCFCFF','var(--ink-soft)',15);
+  s += wire(170,85,240,85,true);
+  s += box(240,30,170,110,'Rule lookup\n(rules dict)','var(--yellow-bg)','var(--yellow)',15);
+  s += wire(410,85,480,85,true);
+  s += box(480,50,140,70,'Score /\nResult','var(--rose-bg)','var(--rose)',15);
+  return svgWrap(640,170,s);
+}
+function diagFeedback(){
+  let s='';
+  s += box(20,60,130,60,'Result','var(--rose-bg)','var(--rose)',15);
+  s += wire(150,90,220,90,true);
+  s += box(220,60,140,60,'Serial write','var(--sky-bg)','var(--sky)',15);
+  s += wire(360,90,430,90,true);
+  s += chip(430,60,110,60,'MCU','var(--sky-bg)','var(--sky)',15);
+  s += wire(540,75,600,55,true); s += ledIcon(625,55,'Green =\ngood match','var(--green)');
+  s += wire(540,105,600,140,true); s += ledIcon(625,140,'Red =\nclash','var(--coral)');
+  return svgWrap(700,210,s);
+}
+function diagTest(){
+  let s='';
+  s += box(15,10,430,150,'','var(--yellow-bg)','var(--yellow)');
+  const items=['Good-match combo → green LED','Clash combo → red LED','Confirm button re-triggers a new round'];
+  items.forEach((t,i)=>{
+    const y=48+i*40;
+    s += `<rect x="35" y="${y-15}" width="22" height="22" rx="5" fill="#fff" stroke="var(--green-dark)" stroke-width="3"/><path d="M 39 ${y-4} l6 6 l12 -14" stroke="var(--green-dark)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s += `<text x="70" y="${y+2}" font-size="15" font-weight="700" fill="var(--ink)">${t}</text>`;
+  });
+  return svgWrap(460,175,s);
+}
+function diagGameFeel(){
+  let s='';
+  s += box(20,20,150,110,'Score\ncounter','var(--rose-bg)','var(--rose)',16);
+  s += box(200,20,150,110,'Streak\ntracker','var(--yellow-bg)','var(--yellow)',16);
+  s += box(380,20,150,110,'Leaderboard\n.csv file','#FCFCFF','var(--ink-soft)',16);
+  return svgWrap(550,155,s);
+}
+function diagPolish(){
+  let s='';
+  s += box(20,20,150,110,'Your\nprototype 🎉','var(--sky-bg)','var(--sky)',16);
+  const rows=[['🏷️','Labels'],['🎥','Demo GIF/video'],['📝','README']];
+  rows.forEach((r,i)=>{
+    const y=45+i*32;
+    s += `<text x="200" y="${y+8}" font-size="20">${r[0]}</text>`;
+    s += `<text x="235" y="${y+5}" font-size="15" font-weight="700" fill="var(--ink)">${r[1]}</text>`;
+  });
+  return svgWrap(360,150,s);
+}
+
+// ---------- STEPS ----------
+const STEPS = [
+  {
+    icon:"🧭", title:"Set Up Your Tools",
+    why:"This project has two separate worlds — the simulated hardware and the backend script — and they need to exist before they can talk to each other. Getting both installed first means Step 4 onward is just writing logic, not fighting installers.",
+    instructions:[
+      "Create a free account at <b>Wokwi</b> (wokwi.com) — this is your browser-based Arduino/ESP32 simulator, no physical board needed.",
+      "On your computer, make sure <b>Python 3</b> is installed.",
+      "Install the serial library: <code>pip install pyserial</code>.",
+      "Open a code editor (VS Code or similar) and make one project folder with two subfolders: <b>firmware/</b> and <b>backend/</b>.",
+      "Start a new blank Wokwi project (Arduino Uno template is fine) so it's ready for Step 2."
+    ],
+    diagram: diagSetup(),
+    checklist:["Wokwi account created", "Python 3 confirmed installed", "pyserial installed", "Project folder with firmware/ and backend/ created", "Blank Wokwi project started"],
+    mistakes:["Installing pyserial globally in a way that conflicts with another Python version — consider a virtual environment if you already use one for other projects.","Skipping the folder structure — mixing firmware code and Python code in one folder gets confusing fast once both grow."]
+  },
+  {
+    icon:"🔘", title:"Wire the Virtual Buttons",
+    why:"Four buttons — Top, Bottom, Shoes, Accessory — are how a 'player' builds an outfit, plus a Confirm button to lock it in. This is the entire input side of your hardware interface: everything downstream depends on these being wired correctly.",
+    instructions:[
+      "In Wokwi's parts list, add 5 <b>pushbuttons</b> onto the canvas.",
+      "Label them (via a comment or sticky note in the diagram) as Top, Bottom, Shoes, Accessory, and Confirm.",
+      "Wire each button between a digital pin and ground, using the built-in pull-down/pull-up pattern Wokwi suggests for pushbuttons.",
+      "Assign each button a distinct, easy-to-remember pin number and write them down — you'll need this exact mapping in your firmware code.",
+      "Click each button once in the simulator just to confirm it registers as pressed (Wokwi highlights it)."
+    ],
+    diagram: diagButtons(),
+    checklist:["5 pushbuttons placed and labeled", "Each wired to a digital pin + ground", "Pin numbers written down", "Every button confirmed clickable in the simulator"],
+    mistakes:["Losing track of which pin number is which button — write the mapping down now, in Step 4 you'll be referencing it constantly.","Forgetting the ground connection on a button — an unconnected pin will read random noise instead of a clean press."]
+  },
+  {
+    icon:"💡", title:"Add the RGB LED + Buzzer",
+    why:"This is the output side — where your MCU actually shows the player a result. An RGB LED can go green for a good match or red for a clash; a buzzer adds a satisfying little 'ding' or 'buzz' on top.",
+    instructions:[
+      "Add an <b>RGB LED</b> part from Wokwi's parts list.",
+      "Wire its Red, Green, and Blue pins to three separate digital (PWM-capable) pins, plus ground.",
+      "Add a <b>buzzer</b> part and wire it to one more digital pin plus ground.",
+      "Note down all four new pin numbers next to your button list from Step 2.",
+      "No code yet — just confirm the parts are placed and wired cleanly with no floating pins."
+    ],
+    diagram: diagLED(),
+    checklist:["RGB LED added and wired (R, G, B, GND)", "Buzzer added and wired", "New pin numbers recorded with your button list", "No floating/unconnected pins left"],
+    mistakes:["Wiring the LED's common pin backwards (common-cathode vs common-anode) — check which type Wokwi's default LED part is before assuming polarity.","Reusing a pin number that's already assigned to a button — double check your running pin list before wiring anything new."]
+  },
+  {
+    icon:"🧵", title:"Write the Firmware Loop",
+    why:"This is the piece of code that actually runs 'on the chip' — it watches the buttons and turns presses into short text codes it sends out over serial, like a tiny translator between physical presses and the software world.",
+    instructions:[
+      "In Wokwi's code editor, set up each button pin as <b>INPUT</b> and start Serial communication in <b>setup()</b>.",
+      "In <b>loop()</b>, check each button; on a fresh press, print a short code like <code>BTN:TOP</code> or <code>BTN:CONFIRM</code> over Serial.",
+      "Add simple debounce logic (a short delay or a 'was it already pressed' check) so one press doesn't print 10 times.",
+      "Run the simulation and open the <b>Serial Monitor</b> — press each button and confirm you see exactly one clean code per press.",
+      "Leave the RGB LED and buzzer untouched for now — this step is inputs only."
+    ],
+    diagram: diagFirmwareLoop(),
+    checklist:["All 5 buttons read as INPUT", "Serial.begin() called in setup()", "Each press prints one clean code, no duplicates", "Debounce logic added and tested", "Serial Monitor confirmed working for every button"],
+    mistakes:["Skipping debounce — a single physical press often registers as 5–10 rapid presses in code, which will make your later scoring logic misfire.","Printing free-form text instead of a consistent short code — decide the exact code format now (e.g. always 'BTN:LABEL') so your Python side has something predictable to parse."]
+  },
+  {
+    icon:"🎯", title:"Design Your Style Rules",
+    why:"Before you write matching logic, you need something to match against. This is the actual 'game design' moment — deciding what counts as a good outfit versus a clash is what makes this feel like a fashion game and not just a wiring exercise.",
+    instructions:[
+      "In <b>backend/</b>, create a file like <code>rules.json</code> or a plain Python dictionary.",
+      "List a small number of Top/Bottom/Shoes/Accessory options (start with 3–4 each, you can expand later).",
+      "Assign simple point values: some combos score positive (+10 good match), some negative (-5 clash), most can just be neutral (0).",
+      "Keep the very first version small on purpose — 5 or 6 rules is plenty to prove the concept works.",
+      "Write the rules down somewhere readable — this file doubles as documentation of your 'game design' for your portfolio README later."
+    ],
+    diagram: diagRules(),
+    checklist:["Rules file created (JSON or dict)", "3–4 options per category listed", "Point values assigned to at least 5–6 combos", "Rules kept small and readable for v1"],
+    mistakes:["Trying to cover every possible combo before testing anything — start with a handful of rules, prove the pipeline works, then expand.","Burying rule logic inside code instead of a separate data file — keeping rules as data makes them easy to tweak and easy to show off separately from your logic."]
+  },
+  {
+    icon:"🐍", title:"Build the Backend Script",
+    why:"This is where the 'software' half of the interface lives — a Python script that listens for whatever the simulated hardware sends and turns it into something usable, the same way it would if a real Arduino were plugged into your USB port.",
+    instructions:[
+      "In <b>backend/</b>, create <code>main.py</code>.",
+      "Import <code>serial</code> (from pyserial) and open a connection to the right port and baud rate — matching what you set in Wokwi's Serial.begin().",
+      "Since Wokwi's browser simulator can't stream directly into a local Python process, use its Serial Monitor output as your test input for now: copy a few sample lines like <code>BTN:TOP</code> into a small mock/replay function.",
+      "Write a loop that reads one line at a time and passes it to a <code>parse_command()</code> function.",
+      "Have <code>parse_command()</code> just print what it received for now, to confirm the pipe works end-to-end."
+    ],
+    diagram: diagBackendStructure(),
+    checklist:["main.py created in backend/", "pyserial import and connection code written", "Mock/replay input path set up for testing without real hardware", "parse_command() confirmed receiving each line correctly"],
+    mistakes:["Assuming the browser-based Wokwi simulator streams live serial data straight into a local script — it doesn't by default, so build and test your mock/replay path first; note in your README that swapping in a real Arduino later needs no code changes, just a real COM port.","Mismatching baud rate between firmware and backend — if you get garbled text, this is almost always the cause."]
+  },
+  {
+    icon:"🔗", title:"Connect Backend Logic to Rules",
+    why:"Now the two halves you built separately — parsed button codes and your style rules — meet. This is the actual 'game logic' step: turning four button presses into one outfit score.",
+    instructions:[
+      "Keep a small in-memory 'current outfit' object that fills in as Top/Bottom/Shoes/Accessory codes arrive.",
+      "When a <code>BTN:CONFIRM</code> code arrives, look up the completed outfit against your rules file.",
+      "Sum up (or look up) the matching score for that combination.",
+      "Print the result clearly to your terminal: the outfit chosen and its score.",
+      "Test with at least one combo you know should score well and one you know should clash."
+    ],
+    diagram: diagConnectLogic(),
+    checklist:["'Current outfit' object fills in correctly as codes arrive", "CONFIRM triggers a rules lookup", "Score correctly summed/looked up", "One known-good combo tested", "One known-clash combo tested"],
+    mistakes:["Scoring before all four categories are filled in — make sure Confirm only scores a complete outfit, not a partial one.","Hardcoding the scoring logic instead of reading from your rules file — that defeats the point of keeping rules separate and tweakable."]
+  },
+  {
+    icon:"🚦", title:"Send Feedback Back",
+    why:"A real hardware/software interface is two-way. This step closes the loop: your backend doesn't just calculate a score, it tells the 'hardware' what to display — proving your Python script can drive the device, not just listen to it.",
+    instructions:[
+      "Decide a simple outgoing code format, e.g. <code>LED:GREEN</code> for a good match, <code>LED:RED</code> for a clash.",
+      "After scoring, have your backend send the matching code back over the serial connection.",
+      "Back in your Wokwi firmware, add code in <code>loop()</code> that watches for incoming Serial data and sets the RGB LED color (and optionally buzzes) based on what it receives.",
+      "Since live two-way streaming into the browser simulator is limited, you can demonstrate this by manually pasting a sample outgoing code into the Wokwi Serial Monitor's input field and watching the LED react.",
+      "Confirm both directions work at least once each: button press → backend, and backend result → LED color."
+    ],
+    diagram: diagFeedback(),
+    checklist:["Outgoing code format decided (e.g. LED:GREEN / LED:RED)", "Backend sends the code after scoring", "Firmware reads incoming Serial and reacts", "Green LED confirmed on a good match", "Red LED confirmed on a clash"],
+    mistakes:["Only proving the input direction (buttons → backend) and skipping this output direction — the two-way link is the actual 'interface' part of the project, don't shortcut it.","Forgetting to reset the LED color between rounds — it should go back to a neutral/off state once a new outfit starts."]
+  },
+  {
+    icon:"🧪", title:"Test End-to-End",
+    why:"Two systems that each work alone can still fail together. A short structured pass here catches timing issues, mismatched codes, and edge cases while you still remember how each piece was wired.",
+    instructions:[
+      "Run a full round: press Top, Bottom, Shoes, Accessory, then Confirm, using a combo you designed to score well.",
+      "Confirm the LED goes green and (if wired) the buzzer gives a positive-sounding beep.",
+      "Run a second full round using a combo you designed to clash, and confirm red.",
+      "Try pressing Confirm before all four categories are chosen, and confirm your code handles it gracefully (ignores it, or prompts) rather than crashing.",
+      "Run one more full round back-to-back to confirm the system resets cleanly between rounds."
+    ],
+    diagram: diagTest(),
+    checklist:["Good-match round tested → green LED", "Clash round tested → red LED", "Early/incomplete Confirm handled gracefully", "Back-to-back rounds reset cleanly"],
+    mistakes:["Only ever testing the 'happy path' — the incomplete-outfit case is the one that will crash a script that isn't checking for it.","Declaring done after one successful round — always run at least two in a row to catch state that didn't reset."]
+  },
+  {
+    icon:"🎮", title:"Add Game Feel",
+    why:"This step is optional but it's what turns 'a working interface demo' into 'a fashion game' — the framing you actually want for a fun, memorable portfolio piece.",
+    instructions:[
+      "Add a running <b>score counter</b> in your backend that adds up points across rounds.",
+      "Add a <b>streak tracker</b> that counts consecutive good-match rounds.",
+      "Write scores to a simple <code>leaderboard.csv</code> file so results persist between runs.",
+      "Consider a small bonus rule, like an extra point boost for 3 good matches in a row.",
+      "Keep this step light — a few small additions go a long way, this isn't the place to over-engineer."
+    ],
+    diagram: diagGameFeel(),
+    checklist:["Score counter implemented", "Streak tracker implemented", "Leaderboard CSV writes correctly", "One optional bonus rule added"],
+    mistakes:["Scope-creeping this into a full game engine — a score, a streak, and a CSV file is plenty for a portfolio piece; save bigger ideas for a v2.","Forgetting to reset the streak counter after a clash — an ever-climbing streak that ignores bad rounds isn't tracking anything real."]
+  },
+  {
+    icon:"🎨", title:"Portfolio Polish",
+    why:"A working prototype and a portfolio-ready one are different things. This last step makes sure someone skimming your resume or GitHub understands what you built and why it matters in under a minute.",
+    instructions:[
+      "Label your Wokwi diagram clearly: buttons, LED, buzzer, all named.",
+      "Record a short screen capture or GIF of a full round — button presses, LED reacting, terminal score output.",
+      "Write a README explaining: what the project is, the hardware/software split, your code-format decisions (BTN:/LED:), and one specific challenge you solved.",
+      "Explicitly call out in the README that swapping the Wokwi mock input for a real Arduino over USB would need no backend code changes — that's the whole point of the serial interface design.",
+      "Push the firmware and backend code to a GitHub repo with clear folder names matching Step 1."
+    ],
+    diagram: diagPolish(),
+    checklist:["Wokwi diagram labeled", "Demo GIF/video recorded", "README written with hardware/software explanation", "Real-hardware compatibility noted in README", "Code pushed to GitHub with clean structure"],
+    mistakes:["Showing only code with no visual/demo — for a hardware-flavored project, a short GIF does more than paragraphs of description.","Leaving out *why* the serial code format was designed the way it was — naming that decision explicitly is what shows interface-design thinking, not just coding."]
+  }
+];
+
+let current = 0;
+let doneFlags = new Array(STEPS.length).fill(false);
+
+function renderTracker(){
+  const svg = document.getElementById('circuitTracker');
+  const n = STEPS.length;
+  const w = 940, y = 40, marginX = 30;
+  const usableW = w - marginX*2;
+  const step = usableW/(n-1);
+  let html = '';
+  html += `<line x1="${marginX}" y1="${y}" x2="${w-marginX}" y2="${y}" stroke="var(--border)" stroke-width="6" stroke-linecap="round"/>`;
+  for(let i=0;i<n-1;i++){
+    if(doneFlags[i] && doneFlags[i+1]){
+      const x1 = marginX + step*i, x2 = marginX + step*(i+1);
+      html += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--green)" stroke-width="6" stroke-linecap="round"/>`;
+    } else if(doneFlags[i]){
+      const x1 = marginX + step*i, x2 = x1 + step*0.5;
+      html += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="var(--green)" stroke-width="6" stroke-linecap="round"/>`;
+    }
+  }
+  for(let i=0;i<n;i++){
+    const x = marginX + step*i;
+    const isDone = doneFlags[i];
+    const isActive = i===current;
+    const fill = isDone ? 'var(--green)' : (isActive ? 'var(--rose)' : '#fff');
+    const stroke = isDone ? 'var(--green-dark)' : (isActive ? 'var(--rose)' : 'var(--border)');
+    html += `<circle cx="${x}" cy="${y}" r="15" fill="${fill}" stroke="${stroke}" stroke-width="3"/>`;
+    html += `<text x="${x}" y="${y+5}" text-anchor="middle" font-size="14">${isDone?'✓':STEPS[i].icon}</text>`;
+  }
+  svg.innerHTML = html;
+  document.getElementById('progressText').textContent = doneFlags.filter(Boolean).length + ' / ' + n + ' steps lit';
+}
+
+function renderStepList(){
+  const el = document.getElementById('steplist');
+  el.innerHTML = STEPS.map((s,i)=>{
+    const cls = ['step-btn', i===current?'active':'', doneFlags[i]?'done':''].join(' ').trim();
+    return `<button class="${cls}" onclick="goTo(${i})"><span class="dot">${doneFlags[i]?'✓':(i+1)}</span> ${s.icon} ${s.title}</button>`;
+  }).join('');
+}
+
+function renderPanel(){
+  const s = STEPS[current];
+  const el = document.getElementById('panel');
+  el.innerHTML = `
+    <span class="badge">STEP ${current+1} OF ${STEPS.length}</span>
+    <h2>${s.icon} ${s.title}</h2>
+    <div class="callout why"><b class="tag">💡 Why are we doing this?</b>${s.why}</div>
+    <ol class="steps-list">
+      ${s.instructions.map((t,i)=>`<li><span class="num">${i+1}</span><span>${t}</span></li>`).join('')}
+    </ol>
+    <div class="diagram-wrap">${s.diagram}</div>
+    <div class="checklist-box">
+      <b class="tag">📌 Quick checklist</b>
+      ${s.checklist.map((c,i)=>`<label class="check-row"><input type="checkbox" data-ci="${i}"><span>${c}</span></label>`).join('')}
+    </div>
+    <div class="callout mistake"><b class="tag">🚧 Common mistakes</b>
+      <ul style="margin:4px 0 0; padding-left:18px;">${s.mistakes.map(m=>`<li style="margin-bottom:4px;">${m}</li>`).join('')}</ul>
+    </div>
+    <div class="nav-row">
+      <button class="navbtn prev" onclick="goTo(${current-1})" ${current===0?'disabled':''}>⬅ Back</button>
+      <label class="done-toggle"><input type="checkbox" id="doneBox" ${doneFlags[current]?'checked':''} onchange="toggleDone(this.checked)"> Mark this step done</label>
+      <button class="navbtn next" onclick="goTo(${current+1})" ${current===STEPS.length-1?'disabled':''}>Next ➡</button>
+    </div>
+  `;
+}
+
+function toggleDone(val){ doneFlags[current] = val; renderTracker(); renderStepList(); }
+
+function goTo(i){
+  if(i<0 || i>=STEPS.length) return;
+  current = i;
+  renderPanel(); renderTracker(); renderStepList();
+  document.getElementById('panel').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+renderPanel(); renderTracker(); renderStepList();
+</script>
+</body>
+</html>
