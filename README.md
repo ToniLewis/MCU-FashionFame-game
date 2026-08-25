@@ -125,3 +125,15 @@ mix-match-runway/
 - Store a persistent leaderboard in a CSV file through a connected backend
 - Connect a physical Arduino over USB using the same serial-message design
 - Add a Python backend to evaluate rules outside the microcontroller
+
+## 👤 Author
+
+Created by **Toni Lewis**
+
+- GitHub: [ToniLewis](https://github.com/ToniLewis)
+- LinkedIn: [Ta-Bless L.](https://www.linkedin.com/in/ta-bless-l-a13783273/)
+- Portfolio: [Toni's Project Portfolio](https://toniwebseme.netlify.app/projects)
+
+## 📄 License
+
+This project is intended for educational, portfolio, and personal-use purposes.
