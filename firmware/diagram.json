@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": -18.6, "left": 66.6, "attrs": {} },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "top",
+      "top": -51.4,
+      "left": -144,
+      "attrs": { "color": "red", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "bottom",
+      "top": 15.8,
+      "left": -144,
+      "attrs": { "color": "green", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "shoes",
+      "top": 83,
+      "left": -144,
+      "attrs": { "color": "blue", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "accessory",
+      "top": 150.2,
+      "left": -144,
+      "attrs": { "color": "yellow", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "confirm",
+      "top": 217.4,
+      "left": -144,
+      "attrs": { "color": "black", "xray": "1" }
+    }
+    ,
+{
+  "type": "wokwi-rgb-led",
+  "id": "rgb",
+  "top": 110,
+  "left": 300,
+  "attrs": { "common": "cathode" }
+},
+{
+  "type": "wokwi-buzzer",
+  "id": "buzzer",
+  "top": 220,
+  "left": 300,
+  "attrs": { "volume": "0.1" }
+}
+  ],
+  "connections": [
+  [ "top:1.l", "uno:2", "green", [ "v0" ] ],
+  [ "top:2.l", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "bottom:1.l", "uno:3", "green", [ "v0" ] ],
+  [ "bottom:2.l", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "shoes:1.l", "uno:4", "green", [ "v0" ] ],
+  [ "shoes:2.l", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "accessory:1.l", "uno:5", "green", [ "v0" ] ],
+  [ "accessory:2.l", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "confirm:1.l", "uno:6", "green", [ "v0" ] ],
+  [ "confirm:2.l", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "rgb:R", "uno:9", "red", [ "v0" ] ],
+  [ "rgb:G", "uno:10", "green", [ "v0" ] ],
+  [ "rgb:B", "uno:11", "blue", [ "v0" ] ],
+  [ "rgb:COM", "uno:GND.1", "black", [ "v0" ] ],
+
+  [ "buzzer:1", "uno:GND.1", "black", [ "v0" ] ],
+  [ "buzzer:2", "uno:8", "purple", [ "v0" ] ]
+],
+  "dependencies": {},
+  "serialMonitor": {
+    "display": "always",
+    "newline": "lf"
+  }
+}
